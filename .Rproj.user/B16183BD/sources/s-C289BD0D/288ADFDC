@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1619708352907.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "288ADFDC",
+    "lastKnownWriteTime" : 1619799888,
+    "last_content_update" : 1619799888044,
+    "path" : "C:/Users/shane/Desktop/Data/FallGuyReview/FallguysReview_NLP2.Rmd",
+    "project_path" : "FallguysReview_NLP2.Rmd",
+    "properties" : {
+        "cursorPosition" : "112,0",
+        "last_setup_crc32" : "C289BD0Dbb338d19",
+        "scrollLine" : "86",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

@@ -1,0 +1,5 @@
+"0","#Graph of the distribution of scores"
+"0","#Fall guys seems to have good reviews"
+"0","data %>% "
+"0","  count(score) %>% "
+"0","  ggplot(aes(x=score, y = n)) + geom_col()"

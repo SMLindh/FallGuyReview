@@ -1,0 +1,17 @@
+install.packages('tidytext')
+?unnest_tok
+test = read.csv('user_reviews.csv')
+test$test_char = as.character(test$text)
+test %>% 
+  unnest_tokens(word, txt, token = stringr::str_split, pattern = " ")
+
+test %>% 
+  select(grade,text) %>% 
+  unnest_tokens(word, text, token = stringr::str_split, pattern = " ")
+install.packages('irlba')
+?center
+install.packages("tidylo")
+install.packages('tidymodels')
+install.packages('textrecipes')
+install.packages('stopwords')
+install.packages('glmnet')

@@ -1,0 +1,5 @@
+"0","library(tidymodels)"
+"0","tidy_data = data %>% select(-username)"
+"0","tidy_split = initial_split (tidy_data, p =.8)"
+"0","tidy_train = training(tidy_split)"
+"0","tidy_test = testing(tidy_split)"

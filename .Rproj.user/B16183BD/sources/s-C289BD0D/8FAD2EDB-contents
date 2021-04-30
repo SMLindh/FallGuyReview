@@ -1,0 +1,14 @@
+require(RobinHood)
+require(httr)
+require(tidyverse)
+require(xlsx)
+RH = RobinHood('shanemlindh@gmail.com', 'Shane1stocks2games3!')
+opt_pos = get_positions_options(RH)
+norm_pos = get_positions(RH)
+write.xlsx(norm_pos, file="positions.xlsx",
+           row.names = FALSE,
+           sheetName = "Normal")
+write.xlsx(opt_pos, file="positions.xlsx",
+           row.names = FALSE,
+           sheetName = "Options",
+           append = TRUE)

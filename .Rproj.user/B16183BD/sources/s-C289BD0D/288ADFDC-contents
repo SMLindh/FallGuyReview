@@ -1,0 +1,119 @@
+---
+title: "FallGuyReviews"
+author: "Shane Lindh"
+date: "4/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Read data and drops rows that had strange usernames or Na scores.
+library(tidyverse)
+library(tidytext)
+data = read.csv('fall_guy_reviews.csv')
+data = data[-c(75,76,77,239,312,313,314,315,316,317,318,319,340,162,57,320,242,165,78,240,221,341,85,170,233),]
+```
+```{r}
+head(data)
+```
+```{r}
+#Graph of the distribution of scores
+#Fall guys seems to have good reviews
+data %>% 
+  count(score) %>% 
+  ggplot(aes(x=score, y = n)) + geom_col()
+```
+```{r}
+#Vocab:
+#Sparse DF: Seems to just be a df that reduces memory usage. Need to do more research.
+#unnest_tokens = creates a column (word) and splits up review text by spaces in the text. 
+#it stores that and then does a word count on unique words per score.
+#it then filters out so only words that appear >= 5 times per score show
+#then groups that by the scores so we can take the top 25 words by score only.
+#
+sparse_df = data %>% 
+  select(score,review_text) %>% 
+  unnest_tokens(word, review_text, token = stringr::str_split, pattern = " ") %>% 
+  count(score,word) %>% 
+  filter(n>=5) %>% 
+  group_by(score) %>% 
+  top_n(n,n=25) %>% 
+  ungroup() %>% 
+  cast_sparse(row = score, column = word, value = n)
+sparse_df
+```
+```{r, fig.height=33, fig.width=33}
+library(irlba)
+#Breaks the text from df above into 4 PCs
+pca_text = prcomp_irlba(sparse_df, n =4 , scale = TRUE)
+pca_text
+pca_text$center %>% 
+  tidy() %>% 
+  select(names) %>% 
+  cbind(pca_text$rotation) %>% 
+  ggplot(aes(x=PC1, y = PC2, label = names)) + geom_point()+geom_text()
+```
+```{r, fig.height = 15, fig.width=15}
+#Unnests data into word tokens, takes out stop words, and plots top 5
+# words by tfidf by score. The facet wrap is a cool new thing I learned that lets 
+#you make seperate charts for different categories in the same figure.
+
+#** Can also use log odds instead of tfidf
+data %>% 
+  unnest_tokens(word, review_text, token = stringr::str_split, pattern = " ")%>% 
+  count(score,word) %>% 
+  anti_join(stop_words) %>% 
+  filter(n>=3) %>% 
+  bind_tf_idf(word,score,n) %>% 
+  group_by(score) %>% 
+  top_n(tf_idf, n = 5) %>% 
+  ungroup() %>% 
+  mutate(score = as.factor(score)) %>% 
+  ggplot(aes(x = reorder_within(word, tf_idf, score), y = tf_idf, fill = score)) + geom_col() + scale_x_reordered() + coord_flip()+facet_wrap(~score, scales = 'free')+ theme(legend.position = 'none')
+```
+
+
+
+```{r}
+#Splitting the data into training and validation
+library(tidymodels)
+tidy_data = data %>% select(-username)
+tidy_split = initial_split (tidy_data, p =.8)
+tidy_train = training(tidy_split)
+tidy_test = testing(tidy_split)
+```
+```{r}
+library(textrecipes)
+library(stopwords)
+tidy_train %>% 
+  mutate(score = as.factor(score)) 
+#Makes a recipe to pre process our text
+#tokenize -> remove stopwords -> top 200 tokens -> term freq
+text_recipe = recipe(score~review_text, data = tidy_train) %>% 
+  step_tokenize(review_text) %>% 
+  step_stopwords(review_text) %>% 
+  step_tokenfilter(review_text, max_tokens = 200) %>% 
+  step_tf(review_text)
+text_prep = text_recipe %>% prep()
+text_prep
+#Cross validating 
+cross_validation = vfold_cv(tidy_train, v = 10, repeats = 10)
+cross_validation
+#Creating a workflow
+wf = workflow() %>% 
+  add_recipe(text_recipe)
+#Stopping the project here. I got what I wanted out of the project and learned a lot about
+#NLP. I want to start a project from scratch by scraping the dataset before I continue with the 
+#models.
+
+```
+
+
+
+
+
+
+
